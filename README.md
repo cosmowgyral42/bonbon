@@ -2,6 +2,10 @@
 
 A local web studio that turns your life moments, career news, projects and learnings into LinkedIn posts **in your own voice**, then schedules them through **Buffer**.
 
+**Live demo:** https://bonbon-studio.netlify.app
+
+The demo is for looking around: it has no API keys and doesn't save anything. Run it locally (below) to write and schedule real posts.
+
 ## Run it
 
 ```bash
