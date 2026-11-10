@@ -1,8 +1,9 @@
 import { BufferError, listChannels, listOrgs } from "@/lib/buffer";
 import { bufferKey, getDB } from "@/lib/store";
+import { route } from "@/lib/route";
 
 // Lists every org + channel on the Buffer account so the user can pick their LinkedIn profile.
-export async function GET() {
+export const GET = route("GET /api/buffer/channels", async function GET() {
   const key = bufferKey((await getDB()).settings);
   try {
     const orgs = await listOrgs(key);
@@ -14,4 +15,4 @@ export async function GET() {
     const msg = e instanceof BufferError ? e.message : "Couldn't reach Buffer.";
     return Response.json({ error: msg }, { status: 400 });
   }
-}
+});

@@ -1,8 +1,9 @@
 import { friendlyAIError, generateDrafts } from "@/lib/ai";
 import { anthropicKey, getDB } from "@/lib/store";
 import type { Category } from "@/lib/types";
+import { route } from "@/lib/route";
 
-export async function POST(req: Request) {
+export const POST = route("POST /api/generate", async function POST(req: Request) {
   const body = (await req.json()) as { category: Category; story: string; tweak?: string; previous?: string };
   if (!body.story?.trim()) return Response.json({ error: "Tell me what happened first ✨" }, { status: 400 });
   const db = await getDB();
@@ -19,4 +20,4 @@ export async function POST(req: Request) {
   } catch (e) {
     return Response.json({ error: friendlyAIError(e) }, { status: 400 });
   }
-}
+});

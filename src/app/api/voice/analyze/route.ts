@@ -1,7 +1,8 @@
 import { analyzeVoice, friendlyAIError } from "@/lib/ai";
 import { anthropicKey, getDB, updateDB } from "@/lib/store";
+import { route } from "@/lib/route";
 
-export async function POST() {
+export const POST = route("POST /api/voice/analyze", async function POST() {
   const db = await getDB();
   try {
     const result = await analyzeVoice(anthropicKey(db.settings), db.voice);
@@ -13,4 +14,4 @@ export async function POST() {
   } catch (e) {
     return Response.json({ error: friendlyAIError(e) }, { status: 400 });
   }
-}
+});

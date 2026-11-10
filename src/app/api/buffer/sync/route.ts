@@ -1,8 +1,9 @@
 import { BufferError, listScheduledPosts } from "@/lib/buffer";
 import { bufferKey, getDB, id, updateDB } from "@/lib/store";
+import { route } from "@/lib/route";
 
 // Pulls scheduled posts from Buffer so the calendar also shows things queued outside this app.
-export async function POST() {
+export const POST = route("POST /api/buffer/sync", async function POST() {
   const { settings } = await getDB();
   if (!settings.bufferOrgId) return Response.json({ error: "Pick your Buffer channel in Settings first." }, { status: 400 });
   try {
@@ -45,4 +46,4 @@ export async function POST() {
     const msg = e instanceof BufferError ? e.message : "Couldn't reach Buffer.";
     return Response.json({ error: msg }, { status: 400 });
   }
-}
+});

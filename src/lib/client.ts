@@ -4,14 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 
 // Tiny fetch helpers for the local API.
 export async function api<T>(url: string, init?: { method?: string; body?: unknown }): Promise<T> {
+  const method = init?.method ?? (init?.body ? "POST" : "GET");
   const res = await fetch(url, {
-    method: init?.method ?? (init?.body ? "POST" : "GET"),
+    method,
     headers: init?.body ? { "Content-Type": "application/json" } : undefined,
     body: init?.body ? JSON.stringify(init.body) : undefined,
     cache: "no-store",
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((json as { error?: string }).error || `Request failed (${res.status})`);
+  if (!res.ok) {
+    const msg = (json as { error?: string }).error;
+    console.error(`[bonbon] ${method} ${url} → ${res.status}`, msg ?? "(no message)");
+    throw new Error(msg || `The server hit an error (${res.status}) and didn't say why — check the terminal running Bonbon.`);
+  }
   return json as T;
 }
 

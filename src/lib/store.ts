@@ -57,11 +57,39 @@ async function read(): Promise<DB> {
   }
 }
 
+// A save that failed, with a message the user can read.
+// `readOnly` is set when the disk can't be written at all (e.g. the Netlify demo).
+export class StoreError extends Error {
+  constructor(
+    message: string,
+    public readOnly = false,
+    cause?: unknown,
+  ) {
+    super(message, { cause });
+  }
+}
+
+export function saveError(e: unknown, what: string) {
+  const code = (e as NodeJS.ErrnoException)?.code;
+  if (code === "EROFS" || code === "EACCES" || code === "EPERM") {
+    return new StoreError(
+      "This copy of Bonbon is read-only (like the online demo), so changes can't be saved. Run it on your own computer to save.",
+      true,
+      e,
+    );
+  }
+  return new StoreError(`Couldn't save ${what}: ${e instanceof Error ? e.message : String(e)}`, false, e);
+}
+
 async function write(db: DB) {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  const tmp = DB_FILE + ".tmp";
-  await fs.writeFile(tmp, JSON.stringify(db, null, 2));
-  await fs.rename(tmp, DB_FILE);
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    const tmp = DB_FILE + ".tmp";
+    await fs.writeFile(tmp, JSON.stringify(db, null, 2));
+    await fs.rename(tmp, DB_FILE);
+  } catch (e) {
+    throw saveError(e, "your data");
+  }
 }
 
 export function getDB() {

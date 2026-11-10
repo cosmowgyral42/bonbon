@@ -1,8 +1,9 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { MEDIA_DIR, MIME, safeName } from "@/lib/media";
+import { route } from "@/lib/route";
 
-export async function GET(_req: Request, ctx: RouteContext<"/api/media/[file]">) {
+export const GET = route("GET /api/media/[file]", async function GET(_req: Request, ctx: RouteContext<"/api/media/[file]">) {
   const name = safeName((await ctx.params).file);
   if (!name) return new Response("Not found", { status: 404 });
   try {
@@ -13,4 +14,4 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/media/[file]">)
   } catch {
     return new Response("Not found", { status: 404 });
   }
-}
+});

@@ -4,7 +4,7 @@ import { createHash } from "crypto";
 import { promises as fs } from "fs";
 import path from "path";
 import { promisify } from "util";
-import { id } from "./store";
+import { id, saveError } from "./store";
 import type { PostImage } from "./types";
 
 export const MEDIA_DIR = path.join(process.cwd(), "data", "media");
@@ -31,8 +31,13 @@ export async function saveImage(file: File): Promise<PostImage> {
   if (file.size > MAX_BYTES) throw new Error("Images need to be under 10 MB.");
   const imageId = id();
   const name = `${imageId}${ext === ".jpeg" ? ".jpg" : ext}`;
-  await fs.mkdir(MEDIA_DIR, { recursive: true });
-  await fs.writeFile(path.join(MEDIA_DIR, name), Buffer.from(await file.arrayBuffer()));
+  const bytes = Buffer.from(await file.arrayBuffer());
+  try {
+    await fs.mkdir(MEDIA_DIR, { recursive: true });
+    await fs.writeFile(path.join(MEDIA_DIR, name), bytes);
+  } catch (e) {
+    throw saveError(e, "the image");
+  }
   return { id: imageId, file: name, url: null };
 }
 

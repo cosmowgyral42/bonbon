@@ -1,10 +1,11 @@
 import { pullFromBuffer, pushSchedule } from "../push";
 import { getDB, updateDB } from "@/lib/store";
 import type { Post } from "@/lib/types";
+import { route } from "@/lib/route";
 
 type Patch = { images?: Post["images"]; text?: string; scheduledAt?: string | null; category?: Post["category"]; action?: "schedule" | "unschedule" | "save" };
 
-export async function PATCH(req: Request, ctx: RouteContext<"/api/posts/[id]">) {
+export const PATCH = route("PATCH /api/posts/[id]", async function PATCH(req: Request, ctx: RouteContext<"/api/posts/[id]">) {
   const { id } = await ctx.params;
   const body = (await req.json()) as Patch;
   const { settings, posts } = await getDB();
@@ -34,9 +35,9 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/posts/[id]">) 
     if (i >= 0) db.posts[i] = post;
   });
   return Response.json({ post, warning });
-}
+});
 
-export async function DELETE(_req: Request, ctx: RouteContext<"/api/posts/[id]">) {
+export const DELETE = route("DELETE /api/posts/[id]", async function DELETE(_req: Request, ctx: RouteContext<"/api/posts/[id]">) {
   const { id } = await ctx.params;
   const { settings, posts } = await getDB();
   const post = posts.find((p) => p.id === id);
@@ -46,4 +47,4 @@ export async function DELETE(_req: Request, ctx: RouteContext<"/api/posts/[id]">
   }
   await updateDB((db) => void (db.posts = db.posts.filter((p) => p.id !== id)));
   return Response.json({ ok: true });
-}
+});

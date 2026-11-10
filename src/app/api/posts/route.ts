@@ -1,12 +1,13 @@
 import { pushSchedule } from "./push";
 import { getDB, id, updateDB } from "@/lib/store";
 import type { Post } from "@/lib/types";
+import { route } from "@/lib/route";
 
-export async function GET() {
+export const GET = route("GET /api/posts", async function GET() {
   return Response.json((await getDB()).posts);
-}
+});
 
-export async function POST(req: Request) {
+export const POST = route("POST /api/posts", async function POST(req: Request) {
   const body = (await req.json()) as Partial<Post> & { schedule?: boolean };
   if (!body.text?.trim()) return Response.json({ error: "Post is empty." }, { status: 400 });
   const post: Post = {
@@ -35,4 +36,4 @@ export async function POST(req: Request) {
     if (note) note.used = true;
   });
   return Response.json({ post, warning });
-}
+});

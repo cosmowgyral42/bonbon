@@ -1,11 +1,12 @@
 import { getDB, publicSettings, updateDB } from "@/lib/store";
 import type { Settings } from "@/lib/types";
+import { route } from "@/lib/route";
 
-export async function GET() {
+export const GET = route("GET /api/settings", async function GET() {
   return Response.json(publicSettings((await getDB()).settings));
-}
+});
 
-export async function PUT(req: Request) {
+export const PUT = route("PUT /api/settings", async function PUT(req: Request) {
   const body = (await req.json()) as Partial<Settings>;
   const s = await updateDB((db) => {
     const next = { ...body };
@@ -22,4 +23,4 @@ export async function PUT(req: Request) {
     return db.settings;
   });
   return Response.json(publicSettings(s));
-}
+});
