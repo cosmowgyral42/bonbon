@@ -61,16 +61,32 @@ function filesAt(root: string): Storage {
   };
 }
 
+// Storage calls get a time limit, so a stuck connection becomes a readable error instead of a hung request.
+async function limit<T>(what: string, p: Promise<T>, ms = 8000): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Storage didn't respond in time (${what}). Please try again.`)), ms);
+  });
+  try {
+    return await Promise.race([p, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function blobsAt(prefix: string): Promise<Storage> {
-  const { getStore } = await import("@netlify/blobs");
+  const { getStore } = await limit("loading storage", import("@netlify/blobs"));
   const store = getStore({ name: "bonbon", consistency: "strong" });
   return {
     async read(key) {
-      const data = await store.get(prefix + key, { type: "arrayBuffer" });
+      // On Netlify, get() of a key that doesn't exist never resolves, so check it exists first.
+      if (!(await limit(`checking ${key}`, store.getMetadata(prefix + key)))) return null;
+      const data = await limit(`reading ${key}`, store.get(prefix + key, { type: "arrayBuffer" }));
       return data ? Buffer.from(data) : null;
     },
     async write(key, data) {
-      await store.set(prefix + key, typeof data === "string" ? data : new Uint8Array(data).buffer);
+      const body = typeof data === "string" ? data : new Blob([new Uint8Array(data)]);
+      await limit(`saving ${key}`, store.set(prefix + key, body));
     },
   };
 }

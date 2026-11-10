@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_rethrow } from "next/navigation";
 import { StoreError } from "./store";
 
 // Wraps an API route handler so an unexpected failure is logged on the server
@@ -8,6 +9,7 @@ export function route<Args extends unknown[]>(name: string, handler: (...args: A
     try {
       return await handler(...args);
     } catch (e) {
+      unstable_rethrow(e); // let Next handle its own control-flow errors (e.g. during the build)
       console.error(`[bonbon] ${name} failed:`, e);
       const readOnly = e instanceof StoreError && e.readOnly;
       const message = e instanceof Error && e.message ? e.message : "Something went wrong on the server.";
