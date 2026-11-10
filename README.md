@@ -4,7 +4,7 @@ A local web studio that turns your life moments, career news, projects and learn
 
 **Live demo:** https://bonbon-studio.netlify.app
 
-The demo is for looking around: it has no API keys and doesn't save anything. Run it locally (below) to write and schedule real posts.
+Anyone can use it: paste your own Buffer API key in **Settings**, pick your LinkedIn channel and schedule posts. Each browser gets its own private workspace, and keys are encrypted on the server and never shown back. Run it locally (below) if you'd rather keep everything on your own computer.
 
 ## Run it
 
@@ -38,6 +38,7 @@ Instead of pasting keys in the app, you can put them in `.env.local` (see `.env.
 - **Writing:** Claude (`claude-opus-5-5`) gets your voice profile + sample posts + the story, and returns three drafts with different angles. See `src/lib/ai.ts`.
 - **Scheduling:** posts are created in Buffer with an exact time (`customScheduled`) via Buffer's GraphQL API. Rescheduling, editing and unscheduling update Buffer too. **Sync from Buffer** on the calendar pulls in posts you queued elsewhere. See `src/lib/buffer.ts`.
 - **Storage:** everything (including your keys) is kept in `data/db.json` on your machine. It's git-ignored. Back it up if you care about your ideas.
+- **Hosting it for others:** set `BONBON_HOSTED=1` and `BONBON_SECRET` (see `.env.example`). Each browser then gets its own workspace (an httpOnly cookie), data and images go to Netlify Blobs, API keys are encrypted with AES-256-GCM before they're stored, and server env keys are never used. See `src/lib/workspace.ts`.
 
 ## Notes
 

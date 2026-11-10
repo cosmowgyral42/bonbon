@@ -73,6 +73,7 @@ export type PublicSettings = Omit<Settings, "bufferApiKey" | "anthropicApiKey"> 
   hasAnthropicKey: boolean;
   bufferKeyFromEnv: boolean;
   anthropicKeyFromEnv: boolean;
+  hosted: boolean; // a public site where each browser has its own private workspace
 };
 
 export type Draft = { angle: string; hook: string; text: string };

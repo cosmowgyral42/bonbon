@@ -74,11 +74,21 @@ export default function SettingsPage() {
         <motion.div {...fade(3)} className="lg:col-span-2">
           <div className="flex items-start gap-3 rounded-[var(--radius-candy)] border border-dashed border-blush-200 bg-white/60 p-5 text-[13px] text-berry-soft">
             <ShieldCheck className="mt-0.5 size-5 shrink-0 text-mint-deep" />
-            <p>
-              <b className="text-berry">Your keys stay on this machine.</b> They&apos;re saved in{" "}
-              <code className="rounded bg-blush-50 px-1.5 py-0.5 font-mono text-blush-600">data/db.json</code> inside this
-              project (git-ignored) and only ever sent to Buffer (and Anthropic, if you add the optional key). The browser only sees the last four characters.
-            </p>
+            {settings.hosted ? (
+              <p>
+                <b className="text-berry">Your keys are private to this browser.</b> They&apos;re encrypted before
+                they&apos;re stored, only ever sent to Buffer (and Anthropic, if you add the optional key), and never sent
+                back to this page. The browser only sees the last four characters. Clearing this site&apos;s cookies
+                starts a fresh, empty workspace.
+              </p>
+            ) : (
+              <p>
+                <b className="text-berry">Your keys stay on this machine.</b> They&apos;re saved in{" "}
+                <code className="rounded bg-blush-50 px-1.5 py-0.5 font-mono text-blush-600">data/db.json</code> inside
+                this project (git-ignored) and only ever sent to Buffer (and Anthropic, if you add the optional key). The
+                browser only sees the last four characters.
+              </p>
+            )}
           </div>
         </motion.div>
       </div>
